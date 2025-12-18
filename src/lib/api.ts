@@ -61,13 +61,12 @@ apiClient.interceptors.response.use(
           console.log("[API Interceptor] Token invalid or expired. Clearing localStorage.");
           localStorage.removeItem('authToken');
 
-          // Avoid redirecting if already on an auth page
-          if (!isOnAuthPage) {
-            console.log("[API Interceptor] Redirecting to login...");
-            // Store the current location to redirect back after login
-            localStorage.setItem('authRedirectPath', window.location.pathname);
-            window.location.href = '/login';
-          }
+          // DISABLED REDIRECT FOR VIVA/DEMO STABILITY
+          // if (!isOnAuthPage) {
+          //   console.log("[API Interceptor] Redirecting to login...");
+          //   localStorage.setItem('authRedirectPath', window.location.pathname);
+          //   window.location.href = '/login';
+          // }
         }
       } else if (status === 403) {
         console.error("[API Interceptor] 403 Forbidden - User doesn't have sufficient permissions");
