@@ -12,6 +12,9 @@ import apiClient from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import { useRef } from 'react';
 
 interface ResumeInputData {
   personalInfo: {
@@ -200,6 +203,38 @@ const ResumeBuilder = () => {
   const [generatedText, setGeneratedText] = useState<string | null>(null);
   const [generatedResumeId, setGeneratedResumeId] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
+  const resumePreviewRef = useRef<HTMLDivElement>(null);
+
+  const downloadPDF = async () => {
+    if (!resumePreviewRef.current) return;
+
+    toast.info("Generating PDF...");
+    try {
+      const element = resumePreviewRef.current;
+      const canvas = await html2canvas(element, {
+        scale: 2, // Higher scale for better quality
+        useCORS: true, // Important for external images
+        logging: false
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save(`${userInfo.personalInfo.name.replace(/\s+/g, '_')}_Resume.pdf`);
+      toast.success("PDF downloaded successfully!");
+    } catch (error) {
+      console.error("PDF Generation Error:", error);
+      toast.error("Failed to generate PDF");
+    }
+  };
 
   useEffect(() => {
     let filled = 0;
@@ -372,28 +407,12 @@ const ResumeBuilder = () => {
     }
   };
 
+  /* 
+     Previous server-side download logic removed. 
+     Now using client-side PDF generation for better reliability on Vercel 
+  */
   const downloadResume = () => {
-    if (!generatedResumeId) {
-      toast.error("No generated resume ID found. Please generate a resume first.");
-      return;
-    }
-    if (!apiClient.defaults.baseURL) {
-      toast.error("API client base URL is not configured.");
-      console.error("apiClient.defaults.baseURL is missing");
-      return;
-    }
-
-    const downloadUrl = `${apiClient.defaults.baseURL}/builder/download/${generatedResumeId}`;
-    toast.info("Initiating PDF download...");
-    console.log(`Attempting to download PDF from: ${downloadUrl}`);
-
-    // Use anchor tag for more reliable download behavior
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.setAttribute('download', `resume_${generatedResumeId}.pdf`); // Hint filename
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    downloadPDF();
   };
 
   return (
@@ -602,7 +621,20 @@ const ResumeBuilder = () => {
                       </div>
                     </div>
 
-                    <div className="pt-4 flex justify-end">
+                    <div className="pt-4 flex justify-between">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          if (generatedText) {
+                            downloadPDF();
+                          } else {
+                            toast.error("Please generate the resume first to download it.");
+                          }
+                        }}
+                        className="border-green-600 text-green-700 hover:bg-green-50"
+                      >
+                        <Download className="mr-2 h-4 w-4" /> Download PDF
+                      </Button>
                       <Button
                         onClick={handleNextTab}
                         className="bg-blue-600 hover:bg-blue-700"
@@ -1137,7 +1169,9 @@ const ResumeBuilder = () => {
               </CardHeader>
               <CardContent className="p-0">
                 <ScrollArea className="h-[60vh] w-full p-6 font-mono text-sm leading-relaxed">
-                  <div className="whitespace-pre-wrap">{generatedText}</div>
+                  <div ref={resumePreviewRef} className="bg-white p-8 text-black">
+                    <div className="whitespace-pre-wrap">{generatedText}</div>
+                  </div>
                 </ScrollArea>
               </CardContent>
             </Card>
