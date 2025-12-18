@@ -15,8 +15,8 @@ router.get(
 // POST /api/builder/generate - Generate a resume based on input data
 router.post(
     '/generate',
-    authenticateToken, // Ensure user is authenticated
-    generateResume // Use the controller function
+    // authenticateToken,   <-- REMOVED strict auth
+    generateResume
 );
 
 // GET /api/builder/download/:generatedResumeId - Download a generated resume as PDF
