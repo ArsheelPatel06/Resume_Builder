@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Retrieve the API base URL from environment variables
 // Vite exposes env variables prefixed with VITE_ on import.meta.env
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 if (!API_BASE_URL) {
   console.error("Error: VITE_API_BASE_URL environment variable is not set.");
