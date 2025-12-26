@@ -12,6 +12,7 @@ dotenv.config(); // Load environment variables from .env file BEFORE other impor
 
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
+import mongoose from 'mongoose';
 
 // Import routes
 import authRoutes from './routes/auth.routes';
