@@ -61,6 +61,21 @@ app.get('/', (req: Request, res: Response) => {
     res.send('AI Resume Pro Backend is running!');
 });
 
+// Health check route (DB independent)
+app.get('/api/health', (req: Request, res: Response) => {
+    res.json({
+        status: 'ok',
+        message: 'Backend is reachable',
+        timestamp: new Date().toISOString(),
+        dbState: mongoose.connection.readyState
+    });
+});
+
+// Check for MONGO_URI
+if (!process.env.MONGO_URI) {
+    console.warn("⚠️ WARNING: MONGO_URI environment variable is NOT set. Database connection will likely fail in production!");
+}
+
 // Start the server only if running directly (not imported as a module)
 if (require.main === module) {
     app.listen(port, () => {

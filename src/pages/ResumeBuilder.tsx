@@ -15,7 +15,6 @@ import { motion } from "framer-motion";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { useRef } from 'react';
-import CreativeProfessionalTemplate from "@/components/resume-templates/CreativeProfessionalTemplate";
 
 interface ResumeInputData {
   personalInfo: {
@@ -1170,12 +1169,8 @@ const ResumeBuilder = () => {
               </CardHeader>
               <CardContent className="p-0">
                 <ScrollArea className="h-[60vh] w-full p-6 font-mono text-sm leading-relaxed">
-                  <div ref={resumePreviewRef} className="bg-white text-black shadow-2xl mx-auto w-fit">
-                    {generatedText ? (
-                      <CreativeProfessionalTemplate data={userInfo} />
-                    ) : (
-                      <div className="p-8 whitespace-pre-wrap">Generate resume to see preview...</div>
-                    )}
+                  <div ref={resumePreviewRef} className="bg-white p-8 text-black">
+                    <div className="whitespace-pre-wrap">{generatedText}</div>
                   </div>
                 </ScrollArea>
               </CardContent>
